@@ -8,7 +8,7 @@
 <!-- Open Graph / social -->
 <meta property="og:title" content="Realizing Robotic Swimming with Unified Fluid Robot Multiphysics" />
 <meta property="og:description" content="A differentiable framework that derives strongly coupled fluid-robot dynamics from a single Lagrangian, enabling sim-to-real transfer of undulatory swimming and a C-start escape on a bioinspired eel robot." />
-<meta property="og:image" content="static/images/teaser.png" />
+<meta property="og:image" content="static/images/rsswebfig1.jpg" />
 <meta property="og:type" content="website" />
 <meta name="twitter:card" content="summary_large_image" />
 
@@ -870,30 +870,26 @@ footer a { color: var(--ink-2); }
 
   <figure class="results-figure reveal">
     <div class="frame">
-      <img src="static/images/rsswebfig1.jpg" alt="Time-lapse comparison: Hardware, Unified Multiphysics, and Particle-based Simulator at t = 0, 0.5, 1, 1.5, 2, 2.5, 3 seconds." />
+      <img src="static/images/rsswebundula.png" alt="Time-lapse comparison: Hardware, Unified Multiphysics, and Particle-based Simulator at t = 0, 1, 2, 3, 4 seconds." />
     </div>
     <figcaption>
-      Time-lapse of forward swimming at 40&deg; amplitude across <em>t = 0&ndash;3&nbsp;s</em>.
+      Time-lapse of forward swimming at 40&deg; amplitude across <em>t = 0&ndash;4&nbsp;s</em>.
       <span class="tag-hardware">Hardware</span> (top) is closely tracked by our
       <span class="tag-ours">unified multiphysics</span> simulator (middle), while the
       <span class="tag-baseline">particle-based baseline</span> (bottom) drifts &mdash; the gap widens with amplitude.
     </figcaption>
   </figure>
 
-  <div class="results-figure reveal">
+  <figure class="results-figure reveal">
     <div class="frame">
-      <img src="static/images/rmse_bars.png" alt="RMSE comparison across amplitudes"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
-        [ static/images/rmse_bars.png &mdash; RMSE bar charts (Fig. 7) ]
-      </div>
+      <img src="static/images/rsswebfigbarrmse.png" alt="Bar charts of head-link RMSE for x1, y1, and theta1 versus undulation amplitude (10, 20, 30, 40 degrees), comparing Unified Multiphysics against the particle-based baseline." />
     </div>
     <figcaption>
       Mean trajectory RMSE of the head-link configuration ($x_1$, $y_1$, $\theta_1$) versus undulation amplitude.
-      <span class="tag-ours">Ours</span> outperforms the
-      <span class="tag-baseline">SPH baseline</span> across all amplitudes, with up to <b>75%</b> error reduction at 40&deg;.
+      <span class="tag-ours">Unified multiphysics</span> outperforms the
+      <span class="tag-baseline">particle-based baseline</span> across all amplitudes, with up to <b>75%</b> error reduction at 40&deg;.
     </figcaption>
-  </div>
+  </figure>
 
   <div class="video-grid reveal">
     <figure class="video-card hw rotate-ccw">
@@ -947,18 +943,17 @@ footer a { color: var(--ink-2); }
     </figure>
   </div>
 
-  <div class="results-figure reveal">
+  <figure class="results-figure reveal">
     <div class="frame">
-      <img src="static/images/cstart_trajectories.png" alt="C-start head-link trajectories"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
-        [ static/images/cstart_trajectories.png &mdash; head-link trajectories (Fig. 9) ]
-      </div>
+      <img src="static/images/rsswebtraj.png" alt="Head-link XY trajectories during the C-start: dotted lines for the initial guess and solid lines for the gradient-optimized parameters, plotted for Hardware, Unified Multiphysics, and the particle-based baseline." />
     </div>
     <figcaption>
-      Head-link trajectories before (dotted) and after (solid) gradient-based optimization. Our method realizes a heading close to hardware in both cases; the SPH baseline diverges significantly.
+      Head-link XY trajectories during the C-start. <em>Dotted</em>: initial guess; <em>solid</em>: after gradient-based optimization.
+      Our <span class="tag-ours">unified multiphysics</span> simulator (cyan) closely follows the
+      <span class="tag-hardware">hardware</span> (red) post-optimization, executing the 90&deg; turn from rest, while the
+      <span class="tag-baseline">particle-based baseline</span> (orange) stalls near the start point in both regimes.
     </figcaption>
-  </div>
+  </figure>
 </section>
 
 <!-- ============================================================ HARDWARE ============================================================ -->
