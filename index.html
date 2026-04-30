@@ -562,15 +562,13 @@ footer a { color: var(--ink-2); }
 <section class="teaser wrap-wide">
   <figure class="reveal">
     <div class="frame">
-      <video autoplay muted loop playsinline poster="static/images/teaser.png">
-        <source src="static/videos/teaser.mp4" type="video/mp4" />
-      </video>
+      <img src="static/images/rsswebfig1.png" alt="Time-lapse comparison of a multi-link eel robot across t = 0 to 3 seconds. Top row: hardware. Middle row: our unified multiphysics simulator. Bottom row: particle-based simulator." />
     </div>
     <figcaption>
-      A highly dynamic fish-inspired <b>C-start escape maneuver</b> on a multilink eel robot.
-      <span class="tag-hardware">Hardware</span> (top) executes the maneuver realized in our
-      <span class="tag-ours">unified multiphysics</span> simulator (middle).
-      A particle-based <span class="tag-baseline">baseline</span> in Genesis (bottom) fails to capture the correct dynamics &mdash; rolling out the same control trajectory achieves little lateral movement and does not complete the intended 90&deg; turn.
+      Time-lapse on a multi-link eel robot across <em>t = 0&ndash;3&nbsp;s</em>.
+      <span class="tag-hardware">Hardware</span> (top) is closely tracked by our
+      <span class="tag-ours">unified multiphysics</span> simulator (middle), while a
+      <span class="tag-baseline">particle-based simulator</span> (bottom) fails to capture the coupled fluid-robot dynamics &mdash; rolling out the same control trajectory drifts off the hardware path.
     </figcaption>
   </figure>
 </section>
