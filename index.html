@@ -424,6 +424,17 @@ details.deriv .body { padding: 4px 22px 18px; border-top: 1px solid var(--rule);
 .video-card.baseline .label::before { background: var(--orange-bl); }
 .video-card.hw .label::before       { background: var(--hw-red); }
 .video-card video, .video-card img { width: 100%; display: block; aspect-ratio: 1 / 1; object-fit: cover; background: var(--bg-soft); }
+.video-card.rotate-ccw img { transform: rotate(-90deg); }
+
+.subhead {
+  font-family: "Newsreader", Georgia, serif;
+  font-style: italic;
+  font-size: 1.04rem;
+  color: var(--ink-2);
+  margin: 28px 0 12px;
+  letter-spacing: 0.005em;
+}
+.subhead .num { color: var(--accent); font-weight: 500; margin-right: 6px; }
 
 .timeline-strip {
   margin: 20px 0;
@@ -885,23 +896,17 @@ footer a { color: var(--ink-2); }
   </div>
 
   <div class="video-grid reveal">
-    <figure class="video-card hw">
+    <figure class="video-card hw rotate-ccw">
       <div class="label">Hardware</div>
-      <video autoplay muted loop playsinline poster="static/images/undulation_hw.png">
-        <source src="static/videos/undulation_hw.mp4" type="video/mp4" />
-      </video>
+      <img src="static/gif/image102.gif" alt="Hardware undulatory swimming at 40&deg; amplitude" loading="lazy" />
     </figure>
     <figure class="video-card ours">
-      <div class="label">Ours</div>
-      <video autoplay muted loop playsinline poster="static/images/undulation_ours.png">
-        <source src="static/videos/undulation_ours.mp4" type="video/mp4" />
-      </video>
+      <div class="label">Ours &mdash; unified multiphysics</div>
+      <img src="static/gif/image39.gif" alt="Our unified multiphysics simulator at 40&deg; amplitude" loading="lazy" />
     </figure>
     <figure class="video-card baseline">
-      <div class="label">SPH baseline</div>
-      <video autoplay muted loop playsinline poster="static/images/undulation_baseline.png">
-        <source src="static/videos/undulation_baseline.mp4" type="video/mp4" />
-      </video>
+      <div class="label">Genesis &mdash; particle-based</div>
+      <img src="static/gif/image103.gif" alt="Genesis particle-based baseline at 40&deg; amplitude" loading="lazy" />
     </figure>
   </div>
 
@@ -910,18 +915,35 @@ footer a { color: var(--ink-2); }
     We use the simulator's gradients to optimize a fish-inspired C-start escape maneuver. The maneuver consists of a <em>bend phase</em> (0&ndash;1 s) where the robot curls into a C-shape, followed by a <em>propulsion phase</em> (1&ndash;3 s) where it transitions into undulation. The optimization variables are the per-joint bend angles $\bar\theta_{1:5}$, the head joint phase $\phi_1$, and body wavelength $\lambda$; the undulation amplitude is fixed at 25&deg; to avoid hitting the wall. With L-BFGS, starting from $\bar\theta_{1:5}=[36^\circ\!,\,36^\circ\!,\,36^\circ\!,\,36^\circ\!,\,36^\circ]$, $\phi_1=-\pi/4$, $\lambda=0.7L_B$, we maximize center-of-mass velocity in the target direction and converge to $\bar\theta_{1:5}\!\approx\![17.2^\circ\!,\,17.8^\circ\!,\,19.4^\circ\!,\,23.1^\circ\!,\,36^\circ]$, $\phi_1\!\approx\!-1.16$, $\lambda\!\approx\!0.57L_B$ &mdash; achieving a <b>90&deg; turn from rest</b> that transfers open-loop to hardware. The SPH baseline fails to realize either the turn or the propulsion.
   </p>
 
+  <p class="subhead reveal"><span class="num">a.</span>Initial guess (before optimization)</p>
   <div class="video-grid reveal">
     <figure class="video-card hw">
-      <div class="label">Hardware &mdash; optimized C-start</div>
-      <video autoplay muted loop playsinline poster="static/images/cstart_hw.png">
-        <source src="static/videos/cstart_hw.mp4" type="video/mp4" />
-      </video>
+      <div class="label">Hardware</div>
+      <img src="static/gif/image148.gif" alt="Hardware C-start with the initial (un-optimized) parameters" loading="lazy" />
     </figure>
     <figure class="video-card ours">
-      <div class="label">Ours &mdash; optimized C-start</div>
-      <video autoplay muted loop playsinline poster="static/images/cstart_ours.png">
-        <source src="static/videos/cstart_ours.mp4" type="video/mp4" />
-      </video>
+      <div class="label">Ours &mdash; unified multiphysics</div>
+      <img src="static/gif/image147.gif" alt="Our unified multiphysics simulator C-start before optimization" loading="lazy" />
+    </figure>
+    <figure class="video-card baseline">
+      <div class="label">Genesis &mdash; particle-based</div>
+      <img src="static/gif/image149.gif" alt="Genesis particle-based baseline C-start before optimization" loading="lazy" />
+    </figure>
+  </div>
+
+  <p class="subhead reveal"><span class="num">b.</span>After gradient-based optimization &mdash; 90&deg; turn from rest</p>
+  <div class="video-grid reveal">
+    <figure class="video-card hw">
+      <div class="label">Hardware</div>
+      <img src="static/gif/image145.gif" alt="Hardware optimized C-start, 90&deg; turn" loading="lazy" />
+    </figure>
+    <figure class="video-card ours">
+      <div class="label">Ours &mdash; unified multiphysics</div>
+      <img src="static/gif/image144.gif" alt="Our unified multiphysics simulator optimized C-start, 90&deg; turn" loading="lazy" />
+    </figure>
+    <figure class="video-card baseline">
+      <div class="label">Genesis &mdash; particle-based</div>
+      <img src="static/gif/image146.gif" alt="Genesis particle-based baseline rolled out with the optimized control trajectory" loading="lazy" />
     </figure>
   </div>
 
@@ -945,18 +967,14 @@ footer a { color: var(--ink-2); }
   <p class="reveal">
     The eel robot has <b>6 rigid links</b> (9.8&nbsp;cm each) connected by revolute joints driven by Dynamixel XC330-M288-T servos. It is fully untethered, with an onboard 900&nbsp;mAh battery and a Robotis OpenRB-150 microcontroller in the head link. Buoyant 3D-printed shells house the electronics; thin rigid fins underneath maintain a thin-plate hydrodynamic profile. Head-link pose is tracked by an overhead camera via AprilTags in a 122&nbsp;&times;&nbsp;122&nbsp;cm pool, recreating the simulated walled cavity.
   </p>
-  <div class="results-figure reveal">
+  <figure class="results-figure reveal">
     <div class="frame">
-      <img src="static/images/hardware_setup.png" alt="Hardware setup"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
-        [ static/images/hardware_setup.png &mdash; Fig. 6 of paper ]
-      </div>
+      <img src="static/gif/image114.png" alt="The eel robot hardware: 6 rigid links connected by Dynamixel-driven revolute joints, with onboard battery and microcontroller in the head link." />
     </div>
     <figcaption>
-      Sim-to-real validation setup. The walled cavity is recreated in a pool of equal dimensions; the eel robot is fully untethered.
+      The bioinspired eel robot used for sim-to-real validation. Six rigid 9.8&nbsp;cm links are joined by Dynamixel XC330 servos; the head houses an OpenRB-150 controller and a 900&nbsp;mAh battery, making the platform fully untethered.
     </figcaption>
-  </div>
+  </figure>
 </section>
 
 <!-- ============================================================ BIBTEX ============================================================ -->
