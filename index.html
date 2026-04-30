@@ -843,31 +843,17 @@ footer a { color: var(--ink-2); }
     We drive each joint with a phase-shifted sinusoid to produce a traveling wave at 1&nbsp;Hz with body wavelength $\lambda = L_B$. Across joint amplitudes from 10&deg; to 40&deg; (20 trials each), our method consistently tracks hardware while the SPH baseline drifts &mdash; the gap widens with amplitude.
   </p>
 
-  <div class="timeline-strip reveal">
-    <div class="row header">
-      <span></span>
-      <span>t = 0 s</span><span>t = 0.5 s</span><span>t = 1 s</span><span>t = 1.5 s</span>
-      <span>t = 2 s</span><span>t = 2.5 s</span><span>t = 3 s</span>
+  <figure class="results-figure reveal">
+    <div class="frame">
+      <img src="static/images/rsswebfig1.png" alt="Time-lapse comparison: Hardware, Unified Multiphysics, and Particle-based Simulator at t = 0, 0.5, 1, 1.5, 2, 2.5, 3 seconds." />
     </div>
-    <div class="row hw">
-      <div class="row-label">Hardware</div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <div class="row ours">
-      <div class="row-label">Ours</div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <div class="row baseline">
-      <div class="row-label">Baseline</div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
-      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
-    </div>
-    <figcaption style="margin-top:14px;">
-      Time-lapse of forward swimming at 40&deg; amplitude. Drop frames into the grid above by replacing each empty cell with an <code style="background:var(--bg-soft); padding:1px 5px; border-radius:3px; font-size:0.85em;">&lt;img&gt;</code>.
+    <figcaption>
+      Time-lapse of forward swimming at 40&deg; amplitude across <em>t = 0&ndash;3&nbsp;s</em>.
+      <span class="tag-hardware">Hardware</span> (top) is closely tracked by our
+      <span class="tag-ours">unified multiphysics</span> simulator (middle), while the
+      <span class="tag-baseline">particle-based baseline</span> (bottom) drifts &mdash; the gap widens with amplitude.
     </figcaption>
-  </div>
+  </figure>
 
   <div class="results-figure reveal">
     <div class="frame">
