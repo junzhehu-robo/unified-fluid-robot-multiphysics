@@ -611,18 +611,14 @@ footer a { color: var(--ink-2); }
     Existing multiphysics simulators time-integrate the fluid and robot equations <em>separately</em>, then couple them through an explicit force term. We instead pose the entire problem as a <b>single least-action optimization</b>: the unified Lagrangian is discretized directly, and the coupling forces emerge as Lagrange multipliers of a no-slip constraint.
   </p>
 
-  <div class="method-figure reveal">
+  <figure class="method-figure reveal">
     <div class="frame">
-      <img src="static/images/method_overview.png" alt="Unified least-action formulation diagram"
-           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
-      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
-        [ static/images/method_overview.png &mdash; Fig. 3 of paper ]
-      </div>
+      <img src="static/images/rssfig3.png" alt="Unified least-action formulation: a single constrained optimization yields the incompressible Navier-Stokes and manipulator equations, coupled through Lagrange multipliers." />
     </div>
     <figcaption>
-      The unified Lagrangian governing the coupled fluid-robot dynamics. Variational calculus on the combined action recovers the incompressible Navier&ndash;Stokes and manipulator equations; the multiphysics coupling stems from a single constraint enforcing no-slip at the fluid-robot interface.
+      The unified Lagrangian governing the coupled fluid&ndash;robot dynamics. Variational calculus on the combined action recovers the incompressible Navier&ndash;Stokes and manipulator equations; the multiphysics coupling stems from a single constraint enforcing no-slip at the fluid&ndash;robot interface.
     </figcaption>
-  </div>
+  </figure>
 
   <!-- §1 -->
   <h3 class="reveal"><span class="num">1.</span>From least action to the manipulator equation</h3>
