@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Realizing Robotic Swimming with Unified Fluid-Robot Multiphysics</title>
+<title>Realizing Robotic Swimming with Unified Fluid Robot Multiphysics</title>
 
 <!-- Open Graph / social -->
-<meta property="og:title" content="Realizing Robotic Swimming with Unified Fluid-Robot Multiphysics" />
+<meta property="og:title" content="Realizing Robotic Swimming with Unified Fluid Robot Multiphysics" />
 <meta property="og:description" content="A differentiable framework that derives strongly coupled fluid-robot dynamics from a single Lagrangian, enabling sim-to-real transfer of undulatory swimming and a C-start escape on a bioinspired eel robot." />
 <meta property="og:image" content="static/images/teaser.png" />
 <meta property="og:type" content="website" />
@@ -24,30 +24,31 @@
         onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError:false, macros:{'\\R':'\\mathbb{R}','\\bv':'\\bar{v}','\\bq':'\\bar{q}'} });"></script>
 
 <style>
-/* ========== Tokens ========== */
+/* ========== Tokens (dark theme) ========== */
 :root {
-  --bg:        #fbfaf7;
-  --bg-soft:   #f3f1ea;
-  --bg-tint:   #f6f4ec;
-  --surface:   #ffffff;
-  --ink:       #14181f;
-  --ink-2:     #4a525e;
-  --ink-3:     #8a8f99;
-  --rule:      #e6e2d8;
-  --accent:    #103d5e;
-  --accent-2:  #1d6788;
-  --eq-fluid:    #1d6788;
-  --eq-robot:    #2f7a3a;
-  --eq-coupling: #c2682a;
-  --eq-pressure: #6b4a85;
-  --highlight: #d97a3c;
-  --green-ours:#2f7a3a;
-  --orange-bl: #c66a1a;
+  --bg:        #0a0d12;
+  --bg-soft:   #131820;
+  --bg-tint:   #161c26;
+  --surface:   #141a23;
+  --ink:       #e8eaed;
+  --ink-2:     #a8b0bc;
+  --ink-3:     #6b7380;
+  --rule:      #242b36;
+  --accent:    #6bb6e0;
+  --accent-2:  #7cc4ed;
+  --eq-fluid:    #5fb0e0;
+  --eq-robot:    #6cc97a;
+  --eq-coupling: #f0a45e;
+  --eq-pressure: #b690d4;
+  --highlight: #f0a45e;
+  --green-ours:#6cc97a;
+  --orange-bl: #f0a45e;
+  --hw-red:    #ef6e6e;
   --max:       880px;
   --max-wide:  1100px;
   --radius:    10px;
-  --shadow-sm: 0 1px 2px rgba(20,24,31,.05), 0 1px 1px rgba(20,24,31,.04);
-  --shadow-md: 0 4px 16px rgba(20,24,31,.06), 0 1px 3px rgba(20,24,31,.04);
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.5), 0 1px 1px rgba(0,0,0,.35);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.55), 0 1px 3px rgba(0,0,0,.35);
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -109,11 +110,11 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
   font-size: 0.95rem;
   letter-spacing: 0.02em;
   color: var(--accent);
-  border: 1px solid var(--accent);
+  border: 1px solid rgba(107, 182, 224, 0.4);
   padding: 4px 14px;
   border-radius: 999px;
   margin-bottom: 28px;
-  background: rgba(16, 61, 94, 0.04);
+  background: rgba(107, 182, 224, 0.08);
 }
 .hero h1 {
   font-family: "Newsreader", Georgia, serif;
@@ -126,6 +127,23 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
   color: var(--ink);
 }
 .hero h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+.hero-gif {
+  margin: 4px auto 30px;
+  width: 190px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  background: var(--surface);
+  box-shadow:
+    0 0 0 1px rgba(107, 182, 224, 0.06),
+    0 18px 40px rgba(0, 0, 0, 0.55),
+    0 0 60px rgba(107, 182, 224, 0.10);
+}
+.hero-gif img { width: 100%; height: auto; display: block; }
+@media (max-width: 640px) {
+  .hero-gif { width: 150px; margin-bottom: 24px; }
+}
 
 .authors { font-size: 1.05rem; margin: 0 auto 6px; max-width: 720px; color: var(--ink); }
 .authors a { color: var(--ink); border-bottom: 1px solid transparent; transition: border-color .15s; }
@@ -175,7 +193,7 @@ figcaption b { font-style: normal; font-weight: 600; color: var(--ink); }
 
 .tag-ours      { color: var(--green-ours); font-weight: 600; }
 .tag-baseline  { color: var(--orange-bl); font-weight: 600; }
-.tag-hardware  { color: #b03434; font-weight: 600; }
+.tag-hardware  { color: var(--hw-red); font-weight: 600; }
 .tag-fluid     { color: var(--eq-fluid);    font-weight: 600; }
 .tag-robot     { color: var(--eq-robot);    font-weight: 600; }
 .tag-coupling  { color: var(--eq-coupling); font-weight: 600; }
@@ -225,8 +243,8 @@ figcaption b { font-style: normal; font-weight: 600; color: var(--ink); }
   position: relative;
   margin: 36px 0;
   padding: 28px 28px 22px;
-  background: linear-gradient(180deg, rgba(16,61,94,0.045), rgba(47,122,58,0.025));
-  border: 1px solid rgba(16,61,94,0.18);
+  background: linear-gradient(180deg, rgba(95,176,224,0.08), rgba(108,201,122,0.05));
+  border: 1px solid rgba(95,176,224,0.22);
   border-radius: 12px;
   box-shadow: var(--shadow-sm);
 }
@@ -240,6 +258,8 @@ figcaption b { font-style: normal; font-weight: 600; color: var(--ink); }
   font-family: 'Newsreader', serif;
   font-style: italic;
   font-size: 0.93rem;
+  border: 1px solid rgba(95,176,224,0.22);
+  border-radius: 999px;
 }
 .eq-feature .eq-body { overflow-x: auto; }
 .eq-feature .eq-num-r {
@@ -273,9 +293,9 @@ figcaption b { font-style: normal; font-weight: 600; color: var(--ink); }
   text-transform: uppercase;
   vertical-align: 1px;
 }
-.pill.fluid    { color: var(--eq-fluid);    background: rgba(29,103,136,0.10); }
-.pill.robot    { color: var(--eq-robot);    background: rgba(47,122,58,0.10); }
-.pill.coupling { color: var(--eq-coupling); background: rgba(194,104,42,0.12); }
+.pill.fluid    { color: var(--eq-fluid);    background: rgba(95,176,224,0.14); }
+.pill.robot    { color: var(--eq-robot);    background: rgba(108,201,122,0.14); }
+.pill.coupling { color: var(--eq-coupling); background: rgba(240,164,94,0.16); }
 
 .callout {
   background: var(--surface);
@@ -381,8 +401,8 @@ details.deriv .body { padding: 4px 22px 18px; border-top: 1px solid var(--rule);
 }
 .video-card.ours .label::before     { background: var(--green-ours); }
 .video-card.baseline .label::before { background: var(--orange-bl); }
-.video-card.hw .label::before       { background: #b03434; }
-.video-card video, .video-card img { width: 100%; display: block; aspect-ratio: 1 / 1; object-fit: cover; background: #f0eee7; }
+.video-card.hw .label::before       { background: var(--hw-red); }
+.video-card video, .video-card img { width: 100%; display: block; aspect-ratio: 1 / 1; object-fit: cover; background: var(--bg-soft); }
 
 .timeline-strip {
   margin: 20px 0;
@@ -408,12 +428,12 @@ details.deriv .body { padding: 4px 22px 18px; border-top: 1px solid var(--rule);
   color: var(--ink-2);
   padding-right: 6px;
 }
-.timeline-strip .row.hw       .row-label { color: #b03434; }
+.timeline-strip .row.hw       .row-label { color: var(--hw-red); }
 .timeline-strip .row.ours     .row-label { color: var(--green-ours); }
 .timeline-strip .row.baseline .row-label { color: var(--orange-bl); }
 .timeline-strip .cell {
   aspect-ratio: 1 / 1;
-  background: #f0eee7 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='1' fill='%23c8c4b8'/></svg>") center/8px 8px;
+  background: var(--bg-soft) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='1' fill='%2335404d'/></svg>") center/8px 8px;
   border-radius: 4px;
 }
 .timeline-strip .header {
@@ -435,8 +455,9 @@ details.deriv .body { padding: 4px 22px 18px; border-top: 1px solid var(--rule);
 
 .bibtex-block {
   position: relative;
-  background: var(--ink);
-  color: #e7e3d6;
+  background: var(--bg-soft);
+  color: var(--ink);
+  border: 1px solid var(--rule);
   border-radius: var(--radius);
   padding: 22px;
   font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
@@ -490,8 +511,12 @@ footer a { color: var(--ink-2); }
 
   <h1 class="reveal">
     Realizing Robotic Swimming with<br>
-    Unified <em>Fluid&ndash;Robot Multiphysics</em>
+    Unified <em>Fluid Robot Multiphysics</em>
   </h1>
+
+  <div class="hero-gif reveal" aria-hidden="true">
+    <img src="static/gif/image1.gif" alt="" />
+  </div>
 
   <p class="authors reveal">
     <a href="https://openreview.net/profile?id=~Jeong_Hun_Lee1">Jeong Hun Lee</a><span class="sup">1,&dagger;</span><span class="sep">&middot;</span>
@@ -638,8 +663,8 @@ footer a { color: var(--ink-2); }
     <div class="eq-body">
       $$\begin{aligned}
         \min_{q^r,\,v^r,\,q^f,\,v^f}\;\; & \int_{t_0}^{t_f}\!
-          \color{#1d6788}{L^f(q^f,v^f)}
-          + \color{#2f7a3a}{L^r(q^r,v^r)}
+          \color{#5fb0e0}{L^f(q^f,v^f)}
+          + \color{#6cc97a}{L^r(q^r,v^r)}
           + F(t)^\top q^f \, dt \\[2pt]
         \text{s.t.}\;\;
           & c_1(v^f)=\dot q^f - v^f(q^f)=0 && \forall\, q^f\in\Omega \\
@@ -647,7 +672,7 @@ footer a { color: var(--ink-2); }
           & c_3(v^f)=v^f - v_{bc}=0 && \forall\, q^f\in\partial\Omega \\
           & c_4(v^r)=\dot q^r - v^r=0 && \forall\, q^r \\
           & c_5(q^r)=0 && \forall\, q^r \\
-          & \color{#c2682a}{c_6(v^f,v^r)=v^f - {}^bv^r=0} && \forall\, q^f\in\Gamma
+          & \color{#f0a45e}{c_6(v^f,v^r)=v^f - {}^bv^r=0} && \forall\, q^f\in\Gamma
       \end{aligned}$$
     </div>
     <div class="eq-num-r">(6)</div>
@@ -664,7 +689,7 @@ footer a { color: var(--ink-2); }
   <div class="eq fluid reveal">
     $$\rho\!\left(\dot v^f + (v^f\!\cdot\!\nabla) v^f\right)
       = -\nabla p + \mu\nabla^2 v^f - \rho g
-      \;\color{#c2682a}{- \tfrac{\partial c_3}{\partial v^f}^{\!\!\top}\!\dot\lambda_3
+      \;\color{#f0a45e}{- \tfrac{\partial c_3}{\partial v^f}^{\!\!\top}\!\dot\lambda_3
                         - \tfrac{\partial c_6}{\partial v^f}^{\!\!\top}\!\dot\lambda_6}$$
     <span class="eq-num">(7)</span>
   </div>
@@ -677,7 +702,7 @@ footer a { color: var(--ink-2); }
   <div class="eq robot reveal">
     $$M^r \dot v^r + \rho g
       = \tfrac{\partial c_5}{\partial q^r}^{\!\!\top}\!\lambda_5
-      \;\color{#c2682a}{-\, \tfrac{\partial c_6}{\partial v^r}^{\!\!\top}\!\dot\lambda_6},
+      \;\color{#f0a45e}{-\, \tfrac{\partial c_6}{\partial v^r}^{\!\!\top}\!\dot\lambda_6},
       \qquad \dot q^r = v^r$$
     <span class="eq-num">(9)</span>
   </div>
@@ -720,7 +745,7 @@ footer a { color: var(--ink-2); }
   <div class="eq robot reveal">
     $$\tfrac{1}{2}M^r \bv^r_{k+1}
       \,-\, h\!\left(\tfrac{\partial c_5}{\partial q^r_k}\right)^{\!\!\top}\!\lambda_{5,k}
-      \,\color{#c2682a}{-\, h\!\left(\tfrac{\partial c_6}{\partial \bv^r_k}\right)^{\!\!\top}\!\lambda_{6,k}}
+      \,\color{#f0a45e}{-\, h\!\left(\tfrac{\partial c_6}{\partial \bv^r_k}\right)^{\!\!\top}\!\lambda_{6,k}}
       = \tfrac{1}{2}M^r \bv^r_k - h M^r g$$
     <span class="eq-num">(12)</span>
   </div>
@@ -729,9 +754,9 @@ footer a { color: var(--ink-2); }
     $$\begin{aligned}
       \tfrac{1}{2}(M^f - \mu h L)\bv^f_{k+1}
         &- \tfrac{h}{2} N(\bv^f_{k+1})
-         + \color{#6b4a85}{G\, p_k}
+         + \color{#b690d4}{G\, p_k}
          + B\,\lambda_{3,k}
-         \color{#c2682a}{- h\!\left(\tfrac{\partial c_6}{\partial \bv^f_k}\right)^{\!\!\top}\!\lambda_{6,k}} \\
+         \color{#f0a45e}{- h\!\left(\tfrac{\partial c_6}{\partial \bv^f_k}\right)^{\!\!\top}\!\lambda_{6,k}} \\
         &\quad = \tfrac{1}{2}(M^f + \mu h L)\bv^f_k + \tfrac{h}{2}N(\bv^f_k) - h M^f g
     \end{aligned}$$
     <span class="eq-num">(13)</span>
