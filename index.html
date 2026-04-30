@@ -102,7 +102,8 @@ p { margin: 0 0 18px; color: var(--ink); }
 p.lead { color: var(--ink-2); font-size: 1.04rem; }
 
 /* Hero */
-.hero { padding: 88px 0 32px; text-align: center; }
+.hero { padding: 88px 0 32px; text-align: center; position: relative; overflow: hidden; }
+.hero > *:not(.hero-gif) { position: relative; z-index: 2; }
 .hero .venue {
   display: inline-block;
   font-family: "Newsreader", Georgia, serif;
@@ -129,20 +130,26 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
 .hero h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
 
 .hero-gif {
-  margin: 4px auto 30px;
-  width: 190px;
-  border-radius: 14px;
-  overflow: hidden;
-  border: 1px solid var(--rule);
-  background: var(--surface);
-  box-shadow:
-    0 0 0 1px rgba(107, 182, 224, 0.06),
-    0 18px 40px rgba(0, 0, 0, 0.55),
-    0 0 60px rgba(107, 182, 224, 0.10);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 0;
+  pointer-events: none;
+  transform: translate(-50%, -50%) rotate(-90deg);
+  transform-origin: center center;
+  opacity: 0.55;
+  filter: saturate(0.95) contrast(1.02);
+  -webkit-mask-image: radial-gradient(ellipse 62% 68% at center, #000 38%, transparent 82%);
+          mask-image: radial-gradient(ellipse 62% 68% at center, #000 38%, transparent 82%);
 }
-.hero-gif img { width: 100%; height: auto; display: block; }
-@media (max-width: 640px) {
-  .hero-gif { width: 150px; margin-bottom: 24px; }
+.hero-gif img {
+  display: block;
+  width: 380px;
+  height: auto;
+}
+@media (max-width: 720px) {
+  .hero-gif { opacity: 0.42; }
+  .hero-gif img { width: 260px; }
 }
 
 .authors { font-size: 1.05rem; margin: 0 auto 6px; max-width: 720px; color: var(--ink); }
@@ -514,7 +521,7 @@ footer a { color: var(--ink-2); }
     Unified <em>Fluid Robot Multiphysics</em>
   </h1>
 
-  <div class="hero-gif reveal" aria-hidden="true">
+  <div class="hero-gif" aria-hidden="true">
     <img src="static/gif/image1.gif" alt="" />
   </div>
 
