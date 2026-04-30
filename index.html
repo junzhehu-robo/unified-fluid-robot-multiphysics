@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Realizing Robotic Swimming with Unified Fluid-Robot Multiphysics</title>
+
+<!-- Open Graph / social -->
+<meta property="og:title" content="Realizing Robotic Swimming with Unified Fluid-Robot Multiphysics" />
+<meta property="og:description" content="A differentiable framework that derives strongly coupled fluid-robot dynamics from a single Lagrangian, enabling sim-to-real transfer of undulatory swimming and a C-start escape on a bioinspired eel robot." />
+<meta property="og:image" content="static/images/teaser.png" />
+<meta property="og:type" content="website" />
+<meta name="twitter:card" content="summary_large_image" />
+
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;0,6..72,700;1,6..72,400;1,6..72,500&family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+<!-- KaTeX -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css" />
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/contrib/auto-render.min.js"
+        onload="renderMathInElement(document.body, {delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}], throwOnError:false, macros:{'\\R':'\\mathbb{R}','\\bv':'\\bar{v}','\\bq':'\\bar{q}'} });"></script>
+
+<style>
+/* ========== Tokens ========== */
+:root {
+  --bg:        #fbfaf7;
+  --bg-soft:   #f3f1ea;
+  --bg-tint:   #f6f4ec;
+  --surface:   #ffffff;
+  --ink:       #14181f;
+  --ink-2:     #4a525e;
+  --ink-3:     #8a8f99;
+  --rule:      #e6e2d8;
+  --accent:    #103d5e;
+  --accent-2:  #1d6788;
+  --eq-fluid:    #1d6788;
+  --eq-robot:    #2f7a3a;
+  --eq-coupling: #c2682a;
+  --eq-pressure: #6b4a85;
+  --highlight: #d97a3c;
+  --green-ours:#2f7a3a;
+  --orange-bl: #c66a1a;
+  --max:       880px;
+  --max-wide:  1100px;
+  --radius:    10px;
+  --shadow-sm: 0 1px 2px rgba(20,24,31,.05), 0 1px 1px rgba(20,24,31,.04);
+  --shadow-md: 0 4px 16px rgba(20,24,31,.06), 0 1px 3px rgba(20,24,31,.04);
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  margin: 0;
+  font-family: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+a { color: var(--accent-2); text-decoration: none; transition: color .15s ease; }
+a:hover { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+
+img, video { max-width: 100%; height: auto; display: block; }
+
+.wrap       { max-width: var(--max);      margin: 0 auto; padding: 0 24px; }
+.wrap-wide  { max-width: var(--max-wide); margin: 0 auto; padding: 0 24px; }
+
+section { padding: 56px 0; }
+section + section { border-top: 1px solid var(--rule); }
+
+h2.section-title {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(1.7rem, 1.4rem + 1vw, 2.15rem);
+  letter-spacing: -0.01em;
+  margin: 0 0 28px;
+  color: var(--ink);
+}
+h3 {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.3rem;
+  margin: 40px 0 14px;
+  color: var(--ink);
+  letter-spacing: -0.005em;
+}
+h3 .num {
+  display: inline-block;
+  width: 1.6em;
+  color: var(--accent);
+  font-style: italic;
+  font-weight: 500;
+}
+p { margin: 0 0 18px; color: var(--ink); }
+p.lead { color: var(--ink-2); font-size: 1.04rem; }
+
+/* Hero */
+.hero { padding: 88px 0 32px; text-align: center; }
+.hero .venue {
+  display: inline-block;
+  font-family: "Newsreader", Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 4px 14px;
+  border-radius: 999px;
+  margin-bottom: 28px;
+  background: rgba(16, 61, 94, 0.04);
+}
+.hero h1 {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 500;
+  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.1rem);
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0 auto 28px;
+  max-width: 24ch;
+  color: var(--ink);
+}
+.hero h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
+
+.authors { font-size: 1.05rem; margin: 0 auto 6px; max-width: 720px; color: var(--ink); }
+.authors a { color: var(--ink); border-bottom: 1px solid transparent; transition: border-color .15s; }
+.authors a:hover { color: var(--accent); border-bottom-color: var(--accent); text-decoration: none; }
+.authors .sup { font-size: 0.7em; vertical-align: super; color: var(--accent-2); margin-left: 1px; font-weight: 600; }
+.authors .sep { color: var(--ink-3); padding: 0 4px; }
+
+.affil { font-family: "Newsreader", Georgia, serif; font-style: italic; font-size: 1rem; color: var(--ink-2); margin: 6px 0 4px; }
+.equal-note { font-size: 0.85rem; color: var(--ink-3); margin: 4px 0 32px; }
+
+.buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 9px 18px;
+  background: var(--ink); color: var(--bg);
+  border-radius: 999px;
+  font-size: 0.95rem; font-weight: 500; letter-spacing: 0.01em;
+  text-decoration: none;
+  transition: transform .12s ease, background .15s ease;
+  border: 1px solid var(--ink);
+}
+.btn:hover { background: var(--accent); border-color: var(--accent); color: #fff; transform: translateY(-1px); text-decoration: none; }
+.btn .icon { width: 16px; height: 16px; opacity: .9; }
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.ghost:hover { background: var(--ink); color: var(--bg); }
+
+/* Teaser */
+.teaser { padding: 24px 0 8px; }
+.teaser .frame {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.teaser video, .teaser img { width: 100%; display: block; }
+figcaption {
+  margin-top: 14px;
+  font-family: "Newsreader", Georgia, serif;
+  font-style: italic;
+  font-size: 0.95rem;
+  color: var(--ink-2);
+  line-height: 1.55;
+  text-align: left;
+}
+figcaption b { font-style: normal; font-weight: 600; color: var(--ink); }
+
+.tag-ours      { color: var(--green-ours); font-weight: 600; }
+.tag-baseline  { color: var(--orange-bl); font-weight: 600; }
+.tag-hardware  { color: #b03434; font-weight: 600; }
+.tag-fluid     { color: var(--eq-fluid);    font-weight: 600; }
+.tag-robot     { color: var(--eq-robot);    font-weight: 600; }
+.tag-coupling  { color: var(--eq-coupling); font-weight: 600; }
+
+/* Abstract -- drop cap REMOVED per request */
+.abstract p { font-size: 1.05rem; color: var(--ink); }
+
+/* Method */
+.method-figure { margin: 12px 0 28px; }
+.method-figure .frame {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* Equation block — standard, with right-aligned number */
+.eq {
+  position: relative;
+  margin: 22px 0;
+  padding: 4px 64px 4px 24px;
+  background: var(--bg-tint);
+  border-left: 2px solid var(--rule);
+  border-radius: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  font-size: 1.02rem;
+}
+.eq.tight { padding: 2px 64px 2px 24px; }
+.eq .eq-num {
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-3);
+  font-size: 0.85rem;
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+}
+.eq.fluid    { border-left-color: var(--eq-fluid); }
+.eq.robot    { border-left-color: var(--eq-robot); }
+.eq.coupling { border-left-color: var(--eq-coupling); }
+
+/* Featured equation — for the unified Lagrangian */
+.eq-feature {
+  position: relative;
+  margin: 36px 0;
+  padding: 28px 28px 22px;
+  background: linear-gradient(180deg, rgba(16,61,94,0.045), rgba(47,122,58,0.025));
+  border: 1px solid rgba(16,61,94,0.18);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+}
+.eq-feature .eq-tag {
+  position: absolute;
+  top: -10px;
+  left: 22px;
+  background: var(--bg);
+  padding: 0 12px;
+  color: var(--accent);
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.93rem;
+}
+.eq-feature .eq-body { overflow-x: auto; }
+.eq-feature .eq-num-r {
+  text-align: right;
+  margin-top: 6px;
+  color: var(--ink-3);
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+/* Two-column equation row */
+.eq-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 22px 0;
+}
+.eq-row .eq { margin: 0; }
+@media (max-width: 720px) {
+  .eq-row { grid-template-columns: 1fr; }
+}
+
+.pill {
+  display: inline-block;
+  padding: 1px 8px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  vertical-align: 1px;
+}
+.pill.fluid    { color: var(--eq-fluid);    background: rgba(29,103,136,0.10); }
+.pill.robot    { color: var(--eq-robot);    background: rgba(47,122,58,0.10); }
+.pill.coupling { color: var(--eq-coupling); background: rgba(194,104,42,0.12); }
+
+.callout {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin: 28px 0;
+  box-shadow: var(--shadow-sm);
+}
+.callout .label {
+  display: block;
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.9rem;
+  color: var(--accent);
+  margin-bottom: 6px;
+  letter-spacing: 0.02em;
+}
+.callout p:last-child { margin-bottom: 0; }
+
+details.deriv {
+  margin: 22px 0;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+details.deriv summary {
+  padding: 14px 20px;
+  cursor: pointer;
+  font-family: 'Newsreader', serif;
+  font-style: italic;
+  font-size: 0.97rem;
+  color: var(--accent);
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+}
+details.deriv summary::-webkit-details-marker { display: none; }
+details.deriv summary::after {
+  content: '+';
+  font-family: 'Geist', sans-serif;
+  font-style: normal;
+  font-size: 1.2rem;
+  color: var(--ink-3);
+}
+details.deriv[open] summary::after { content: '−'; }
+details.deriv .body { padding: 4px 22px 18px; border-top: 1px solid var(--rule); }
+
+.contributions {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 14px;
+  margin: 28px 0 8px;
+  list-style: none;
+  padding: 0;
+}
+.contributions li {
+  background: var(--bg-soft);
+  border-left: 3px solid var(--accent);
+  border-radius: 6px;
+  padding: 14px 16px;
+  font-size: 0.97rem;
+  color: var(--ink);
+  line-height: 1.55;
+}
+.contributions li b { color: var(--accent); font-family: "Newsreader", serif; font-weight: 600; }
+
+/* Results */
+.video-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 18px 0 12px;
+}
+.video-card {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+.video-card .label {
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.video-card .label::before {
+  content: "";
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--ink-3);
+}
+.video-card.ours .label::before     { background: var(--green-ours); }
+.video-card.baseline .label::before { background: var(--orange-bl); }
+.video-card.hw .label::before       { background: #b03434; }
+.video-card video, .video-card img { width: 100%; display: block; aspect-ratio: 1 / 1; object-fit: cover; background: #f0eee7; }
+
+.timeline-strip {
+  margin: 20px 0;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 18px;
+  box-shadow: var(--shadow-sm);
+}
+.timeline-strip .row {
+  display: grid;
+  grid-template-columns: 90px repeat(7, 1fr);
+  gap: 6px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.timeline-strip .row:last-child { margin-bottom: 0; }
+.timeline-strip .row-label {
+  font-size: 0.84rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 600;
+  color: var(--ink-2);
+  padding-right: 6px;
+}
+.timeline-strip .row.hw       .row-label { color: #b03434; }
+.timeline-strip .row.ours     .row-label { color: var(--green-ours); }
+.timeline-strip .row.baseline .row-label { color: var(--orange-bl); }
+.timeline-strip .cell {
+  aspect-ratio: 1 / 1;
+  background: #f0eee7 url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'><circle cx='20' cy='20' r='1' fill='%23c8c4b8'/></svg>") center/8px 8px;
+  border-radius: 4px;
+}
+.timeline-strip .header {
+  grid-template-columns: 90px repeat(7, 1fr);
+  font-size: 0.78rem;
+  color: var(--ink-3);
+  margin-bottom: 6px;
+}
+.timeline-strip .header span:first-child { visibility: hidden; }
+
+.results-figure { margin: 12px 0 20px; }
+.results-figure .frame {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow-sm);
+}
+
+.bibtex-block {
+  position: relative;
+  background: var(--ink);
+  color: #e7e3d6;
+  border-radius: var(--radius);
+  padding: 22px;
+  font-family: "JetBrains Mono", ui-monospace, Menlo, monospace;
+  font-size: 0.86rem;
+  line-height: 1.65;
+  overflow-x: auto;
+  box-shadow: var(--shadow-md);
+}
+.bibtex-block pre { margin: 0; white-space: pre; }
+.copy-btn {
+  position: absolute;
+  top: 12px; right: 12px;
+  background: rgba(255,255,255,0.08);
+  color: #e7e3d6;
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  padding: 5px 11px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  font-family: "Geist", sans-serif;
+  transition: background .15s;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.16); }
+.copy-btn.copied { background: var(--green-ours); border-color: var(--green-ours); color: #fff; }
+
+footer { padding: 40px 0 60px; font-size: 0.88rem; color: var(--ink-3); text-align: center; border-top: 1px solid var(--rule); }
+footer a { color: var(--ink-2); }
+
+.reveal { opacity: 0; transform: translateY(12px); transition: opacity .7s ease, transform .7s ease; }
+.reveal.in { opacity: 1; transform: translateY(0); }
+
+.katex-display { margin: 0.5em 0 !important; }
+.katex { font-size: 1.04em; }
+
+@media (max-width: 640px) {
+  section { padding: 44px 0; }
+  .hero { padding: 56px 0 24px; }
+  .timeline-strip .row, .timeline-strip .header { grid-template-columns: 60px repeat(7, 1fr); }
+  .timeline-strip .row-label { font-size: 0.72rem; }
+  .eq { font-size: 0.94rem; padding-right: 50px; }
+  .eq .eq-num { right: 10px; font-size: 0.78rem; }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ============================================================ HERO ============================================================ -->
+<header class="hero wrap">
+  <div class="venue reveal">Robotics: Science and Systems &middot; 2026</div>
+
+  <h1 class="reveal">
+    Realizing Robotic Swimming with<br>
+    Unified <em>Fluid&ndash;Robot Multiphysics</em>
+  </h1>
+
+  <p class="authors reveal">
+    <a href="https://openreview.net/profile?id=~Jeong_Hun_Lee1">Jeong Hun Lee</a><span class="sup">1,&dagger;</span><span class="sep">&middot;</span>
+    <a href="https://openreview.net/profile?id=~Junzhe_Hu2">Junzhe Hu</a><span class="sup">1,&dagger;</span><span class="sep">&middot;</span>
+    <a href="https://openreview.net/profile?id=~Sofia_Kwok1">Sofia Kwok</a><span class="sup">1</span><span class="sep">&middot;</span>
+    <a href="https://openreview.net/profile?id=~Carmel_Majidi1">Carmel Majidi</a><span class="sup">1</span><span class="sep">&middot;</span>
+    <a href="https://openreview.net/profile?id=~Zac_Manchester1">Zac Manchester</a><span class="sup">1</span>
+  </p>
+  <p class="affil reveal"><sup>1</sup>Carnegie Mellon University</p>
+  <p class="equal-note reveal"><sup>&dagger;</sup> Equal contribution</p>
+
+  <div class="buttons reveal">
+    <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Paper</a>
+    <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M7 3v18M17 3v18M3 17h18"/></svg>arXiv</a>
+    <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.7.4-1.3.7-1.5-2.5-.3-5.2-1.3-5.2-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.4.1-3 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.7.1 3 .8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.2 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>Code</a>
+    <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Video</a>
+    <a class="btn ghost" href="#bibtex"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v14H6a2 2 0 0 0-2 2z"/><path d="M8 7h8M8 11h6"/></svg>BibTeX</a>
+  </div>
+</header>
+
+<!-- ============================================================ TEASER ============================================================ -->
+<section class="teaser wrap-wide">
+  <figure class="reveal">
+    <div class="frame">
+      <video autoplay muted loop playsinline poster="static/images/teaser.png">
+        <source src="static/videos/teaser.mp4" type="video/mp4" />
+      </video>
+    </div>
+    <figcaption>
+      A highly dynamic fish-inspired <b>C-start escape maneuver</b> on a multilink eel robot.
+      <span class="tag-hardware">Hardware</span> (top) executes the maneuver realized in our
+      <span class="tag-ours">unified multiphysics</span> simulator (middle).
+      A particle-based <span class="tag-baseline">baseline</span> in Genesis (bottom) fails to capture the correct dynamics &mdash; rolling out the same control trajectory achieves little lateral movement and does not complete the intended 90&deg; turn.
+    </figcaption>
+  </figure>
+</section>
+
+<!-- ============================================================ ABSTRACT ============================================================ -->
+<section class="abstract wrap" id="abstract">
+  <h2 class="section-title reveal">Abstract</h2>
+  <p class="reveal">
+    Matching the swimming efficiency and agility of fish has remained an elusive goal in underwater robotics. Such locomotion relies on complex vortex interactions between the robot's body and the surrounding fluid, governed by coupled ordinary and partial differential equations &mdash; significantly more difficult than the multi-body dynamics of classical rigid robotic systems.
+  </p>
+  <p class="reveal">
+    We present a <b>differentiable framework</b> for simulating strongly coupled fluid-robot multiphysics as a unified optimization problem. The coupled manipulator and incompressible Navier&ndash;Stokes equations are derived together from a single Lagrangian using the principle of least action. We employ <b>discrete variational mechanics</b> to derive a stable, well-conditioned, and physically accurate scheme for jointly simulating articulated bodies and the surrounding fluid, and leverage the implicit function theorem to compute derivatives through the fully coupled dynamics.
+  </p>
+  <p class="reveal">
+    Using this simulator and its gradients, we realize undulating swimming gaits and optimize a highly dynamic C-start escape maneuver for a bioinspired eel robot. We validate both gaits on physical hardware, demonstrating successful sim-to-real transfer.
+  </p>
+</section>
+
+<!-- ============================================================ VIDEO ============================================================ -->
+<section class="wrap" id="video">
+  <h2 class="section-title reveal">Video Overview</h2>
+  <div class="reveal" style="background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md);">
+    <video controls poster="static/images/video_poster.png" preload="metadata">
+      <source src="static/videos/overview.mp4" type="video/mp4" />
+    </video>
+  </div>
+</section>
+
+<!-- ============================================================ METHOD ============================================================ -->
+<section class="wrap" id="method">
+  <h2 class="section-title reveal">Method</h2>
+
+  <p class="lead reveal">
+    Existing multiphysics simulators time-integrate the fluid and robot equations <em>separately</em>, then couple them through an explicit force term. We instead pose the entire problem as a <b>single least-action optimization</b>: the unified Lagrangian is discretized directly, and the coupling forces emerge as Lagrange multipliers of a no-slip constraint.
+  </p>
+
+  <div class="method-figure reveal">
+    <div class="frame">
+      <img src="static/images/method_overview.png" alt="Unified least-action formulation diagram"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
+        [ static/images/method_overview.png &mdash; Fig. 3 of paper ]
+      </div>
+    </div>
+    <figcaption>
+      The unified Lagrangian governing the coupled fluid-robot dynamics. Variational calculus on the combined action recovers the incompressible Navier&ndash;Stokes and manipulator equations; the multiphysics coupling stems from a single constraint enforcing no-slip at the fluid-robot interface.
+    </figcaption>
+  </div>
+
+  <!-- §1 -->
+  <h3 class="reveal"><span class="num">1.</span>From least action to the manipulator equation</h3>
+
+  <p class="reveal">
+    For a system with configuration $q(t)\in\R^n$, velocity $v(t)\in\R^m$, kinetic energy $T(v)$, and potential energy $U(q)$, the principle of least action poses the dynamics as a continuous-time optimization problem:
+  </p>
+
+  <div class="eq reveal">
+    $$\min_{q,\,v}\;\; \int_{t_0}^{t_f} T\!\big(v(t)\big) - U\!\big(q(t)\big)\, dt
+      \quad\text{s.t.}\quad v=\dot{q}.$$
+    <span class="eq-num">(1)</span>
+  </div>
+
+  <p class="reveal">
+    Introducing a Lagrange multiplier $\lambda$ for the kinematic constraint and writing $L(q,v) = T(v) - U(q)$, the action becomes
+    $\;S(q,v)=\int_{t_0}^{t_f} L(q,v) + \lambda^\top(\dot q - v)\, dt.$
+    Stationarity yields the Euler&ndash;Lagrange equation
+  </p>
+
+  <div class="eq reveal">
+    $$\frac{d}{dt}\frac{\partial L}{\partial \dot q} - \frac{\partial L}{\partial q} \;=\; 0,$$
+    <span class="eq-num">(2)</span>
+  </div>
+
+  <p class="reveal">
+    which in robotics is more familiar as the manipulator equation
+    $\;M(q)\ddot q + C(q,\dot q)\dot q + G(q) = 0.$
+    The least-action principle generalizes to dissipative systems via Lagrange&ndash;D'Alembert, to non-trivial kinematics $v=f(q,\dot q)$, and to additional constraints $c(q,v)=0$:
+  </p>
+
+  <div class="eq reveal">
+    $$\min_{q,\,v}\; \int_{t_0}^{t_f} T(q,v) - U(q) + F(t)^\top q(t)\, dt
+      \;\;\text{s.t.}\;\; v=f(q,\dot q),\;\; c(q,v)=0.$$
+    <span class="eq-num">(3)</span>
+  </div>
+
+  <!-- §2 -->
+  <h3 class="reveal"><span class="num">2.</span>A unified Lagrangian for fluid&ndash;robot multiphysics</h3>
+
+  <p class="reveal">
+    For a rigid multibody robot interacting with an incompressible Newtonian fluid (e.g., water), we define
+    <span class="pill fluid">fluid</span> and <span class="pill robot">robot</span> Lagrangians as
+  </p>
+
+  <div class="eq-row reveal">
+    <div class="eq fluid">
+      $$L^f(q^f,v^f) = \int_\Omega \tfrac{1}{2}\rho\, (v^f)^\top v^f - \rho\, g^\top q^f \, dV$$
+      <span class="eq-num">(4)</span>
+    </div>
+    <div class="eq robot">
+      $$L^r(q^r,v^r) = \tfrac{1}{2}(v^r)^\top M^r v^r - M^r g^\top q^r$$
+      <span class="eq-num">(5)</span>
+    </div>
+  </div>
+
+  <p class="reveal">
+    where $\rho$ is fluid density, $\mu$ its dynamic viscosity, $\Omega$ the fluid domain with boundary $\partial\Omega$, $\Gamma$ the robot geometry with boundary $\partial\Gamma$, and $M^r$ the robot mass matrix. Damping enters via the viscous term $F(t)=\int_\Omega \mu\,\Delta v^f\, dV$. The full multiphysics is then a single constrained optimization over fluid and robot states:
+  </p>
+
+  <div class="eq-feature reveal">
+    <span class="eq-tag">Unified least action</span>
+    <div class="eq-body">
+      $$\begin{aligned}
+        \min_{q^r,\,v^r,\,q^f,\,v^f}\;\; & \int_{t_0}^{t_f}\!
+          \color{#1d6788}{L^f(q^f,v^f)}
+          + \color{#2f7a3a}{L^r(q^r,v^r)}
+          + F(t)^\top q^f \, dt \\[2pt]
+        \text{s.t.}\;\;
+          & c_1(v^f)=\dot q^f - v^f(q^f)=0 && \forall\, q^f\in\Omega \\
+          & c_2(v^f)=\nabla\!\cdot v^f = 0 && \forall\, q^f\in\Omega \\
+          & c_3(v^f)=v^f - v_{bc}=0 && \forall\, q^f\in\partial\Omega \\
+          & c_4(v^r)=\dot q^r - v^r=0 && \forall\, q^r \\
+          & c_5(q^r)=0 && \forall\, q^r \\
+          & \color{#c2682a}{c_6(v^f,v^r)=v^f - {}^bv^r=0} && \forall\, q^f\in\Gamma
+      \end{aligned}$$
+    </div>
+    <div class="eq-num-r">(6)</div>
+  </div>
+
+  <p class="reveal" style="font-size:0.97rem; color:var(--ink-2);">
+    Constraints $c_1\!-\!c_4$ are the standard kinematic and conservation conditions; $c_5$ encodes joint constraints; <span class="tag-coupling">$c_6$</span> is the no-slip condition at the fluid-robot interface and is the <em>only</em> coupling between the two physics.
+  </p>
+
+  <p class="reveal">
+    Forming the action $S = \int (L^f + L^r + F^\top q^f + \sum_{i=1}^6 \lambda_i c_i)\, dt$ and taking variations w.r.t.&nbsp;$(q^f,v^f)$ and $(q^r,v^r)$ recovers the coupled <span class="tag-fluid">incompressible Navier&ndash;Stokes</span> and <span class="tag-robot">manipulator</span> equations:
+  </p>
+
+  <div class="eq fluid reveal">
+    $$\rho\!\left(\dot v^f + (v^f\!\cdot\!\nabla) v^f\right)
+      = -\nabla p + \mu\nabla^2 v^f - \rho g
+      \;\color{#c2682a}{- \tfrac{\partial c_3}{\partial v^f}^{\!\!\top}\!\dot\lambda_3
+                        - \tfrac{\partial c_6}{\partial v^f}^{\!\!\top}\!\dot\lambda_6}$$
+    <span class="eq-num">(7)</span>
+  </div>
+
+  <div class="eq fluid tight reveal">
+    $$\nabla\!\cdot v^f = 0$$
+    <span class="eq-num">(8)</span>
+  </div>
+
+  <div class="eq robot reveal">
+    $$M^r \dot v^r + \rho g
+      = \tfrac{\partial c_5}{\partial q^r}^{\!\!\top}\!\lambda_5
+      \;\color{#c2682a}{-\, \tfrac{\partial c_6}{\partial v^r}^{\!\!\top}\!\dot\lambda_6},
+      \qquad \dot q^r = v^r$$
+    <span class="eq-num">(9)</span>
+  </div>
+
+  <div class="callout reveal">
+    <span class="label">Where the coupling lives</span>
+    <p>
+      The <span class="tag-coupling">orange terms</span> in&nbsp;(7) and&nbsp;(9) share the <em>same</em> dual variable $\lambda_6$. The pressure $p \equiv \dot\lambda_2$ is itself the multiplier that enforces $\nabla\!\cdot v^f=0$ &mdash; a fact Lagrange noted in his <em>M&eacute;canique analytique</em>. Boundary conditions and the no-slip interface inherit the same constraint-with-dual-variable structure that Allmaras (2005) used for compressible aerodynamics.
+    </p>
+  </div>
+
+  <!-- §3 -->
+  <h3 class="reveal"><span class="num">3.</span>A variational integrator that handles the temporal lag</h3>
+
+  <p class="reveal">
+    Discretizing the action in time is delicate. A midpoint quadrature gives a discrete Lagrangian
+    $L_d(q_k,q_{k+1}) = h\,L\!\left(\tfrac{q_k+q_{k+1}}{2},\,\tfrac{q_{k+1}-q_k}{h}\right)$
+    in which the velocity $\bv_k$ lives <em>between</em> the configurations $q_k$ and $q_{k+1}$. For pure rigid-body simulation this half-step delay is harmless. For our problem it is not: the fluid is represented as a velocity field $\bv^f$ while the robot pose lives in $q^r$, and the no-slip constraint must couple them at a consistent time.
+  </p>
+
+  <p class="reveal">
+    Marsden &amp; West (2001) resolve this via the discrete Legendre transform, which is awkward in the presence of constraints. We instead define every constraint at the time step at which its variable naturally lives ($q_k$ for the robot, $\bv_k$ for the fluid), and rewrite the discrete Euler&ndash;Lagrange relation directly via the chain rule:
+  </p>
+
+  <div class="eq tight reveal">
+    $$D_2 L_d(q_{k-1},q_k) = h\!\left(\tfrac{\partial L}{\partial \bq_k}\!\cdot\!\tfrac{1}{2}
+        + \tfrac{\partial L}{\partial \bv_k}\!\cdot\!\tfrac{1}{h}\right)$$
+    <span class="eq-num">(10)</span>
+  </div>
+  <div class="eq tight reveal">
+    $$D_1 L_d(q_k,q_{k+1}) = h\!\left(\tfrac{\partial L}{\partial \bq_{k+1}}\!\cdot\!\tfrac{1}{2}
+        + \tfrac{\partial L}{\partial \bv_{k+1}}\!\cdot\!\big(\!-\!\tfrac{1}{h}\big)\right)$$
+    <span class="eq-num">(11)</span>
+  </div>
+
+  <p class="reveal">
+    Substituting these back into the discrete Euler&ndash;Lagrange equation produces, after some algebra, two coupled update rules &mdash; one for the robot, one for the fluid &mdash; that are simultaneously solved each time step. With $\bv^r_{k+1}$ and $\bv^f_{k+1}$ as unknowns:
+  </p>
+
+  <div class="eq robot reveal">
+    $$\tfrac{1}{2}M^r \bv^r_{k+1}
+      \,-\, h\!\left(\tfrac{\partial c_5}{\partial q^r_k}\right)^{\!\!\top}\!\lambda_{5,k}
+      \,\color{#c2682a}{-\, h\!\left(\tfrac{\partial c_6}{\partial \bv^r_k}\right)^{\!\!\top}\!\lambda_{6,k}}
+      = \tfrac{1}{2}M^r \bv^r_k - h M^r g$$
+    <span class="eq-num">(12)</span>
+  </div>
+
+  <div class="eq fluid reveal">
+    $$\begin{aligned}
+      \tfrac{1}{2}(M^f - \mu h L)\bv^f_{k+1}
+        &- \tfrac{h}{2} N(\bv^f_{k+1})
+         + \color{#6b4a85}{G\, p_k}
+         + B\,\lambda_{3,k}
+         \color{#c2682a}{- h\!\left(\tfrac{\partial c_6}{\partial \bv^f_k}\right)^{\!\!\top}\!\lambda_{6,k}} \\
+        &\quad = \tfrac{1}{2}(M^f + \mu h L)\bv^f_k + \tfrac{h}{2}N(\bv^f_k) - h M^f g
+    \end{aligned}$$
+    <span class="eq-num">(13)</span>
+  </div>
+
+  <p class="reveal">
+    Together with the discrete constraints
+    $G^\top \bv^f_{k+1}=0$ (incompressibility),
+    $B\bv^f_{k+1}=v_{bc}$ (boundary),
+    $\bar E\,\bv^f_{k+1} = {}^b\bv^r(\bv^r_{k+1})$ (no-slip),
+    and $c_5(q^r_{k+1})=0$ (joints),
+    the system forms a sparse nonlinear root-finding problem solved by Newton's method. The resulting scheme is a 2nd-order implicit leap-frog integrator, and derivatives through it are obtained from the implicit function theorem.
+  </p>
+
+  <details class="deriv reveal">
+    <summary>Spatial discretization &mdash; finite-volume operators</summary>
+    <div class="body">
+      <p>The fluid domain is discretized with a second-order finite-volume scheme yielding the following discrete counterparts of the continuous operators that appear in the Navier&ndash;Stokes equations:</p>
+      <p style="margin-bottom:0;">
+        $\;\int_\Omega \rho v^f\, dV \mapsto M^f v^f,\quad
+          \int_\Omega \nabla p\, dV \mapsto Gp,\quad
+          \int_\Omega (v^f\!\cdot\!\nabla)v^f\, dV \mapsto N(v^f),\quad
+          \int_\Omega \Delta v^f\, dV \mapsto Lv^f.$
+      </p>
+      <p>$M^f$ is the lumped fluid mass matrix, $G$ the discrete gradient, $N(\cdot)$ the (nonlinear) convection operator, and $L$ the discrete Laplacian. $B$ extracts cells on $\partial\Omega$.</p>
+    </div>
+  </details>
+
+  <!-- §4 -->
+  <h3 class="reveal"><span class="num">4.</span>An integral-form immersed boundary for multibody robots</h3>
+
+  <p class="reveal">
+    The classical immersed-boundary method enforces no-slip pointwise:
+    $\;\int_\Omega v^f\,\delta(q^f-{}^bq^r)\, d\Omega = {}^bv^r,\;$
+    discretized as $\;E v^f - {}^bv^r = 0,\;$ with a convolution matrix $E$ built from a smoothed delta. This satisfies no-slip only at a finite set of boundary nodes &mdash; allowing fluid penetration when nodes are sparse, and producing redundant, ill-conditioned constraints when nodes from neighboring bodies overlap. Both pathologies are common in articulated robots.
+  </p>
+
+  <p class="reveal">
+    We instead integrate the constraint along the whole boundary $\Gamma$:
+  </p>
+
+  <div class="eq coupling reveal">
+    $$\oint_\Gamma\!\int_\Omega v^f\, \delta\!\big(q^f-{}^bq^r(q^r)\big)\, dV\, dS
+       \;=\; \oint_\Gamma {}^bv^r(q^r,v^r)\, dS$$
+    <span class="eq-num">(14)</span>
+  </div>
+
+  <p class="reveal">
+    Discretizing with piecewise-linear interpolation along the boundary and integrating the smoothed delta along each segment yields a new convolution matrix $\bar E$:
+  </p>
+
+  <div class="eq coupling tight reveal">
+    $$\bar E\, v^f - {}^bv^r(v^r) \;=\; 0$$
+    <span class="eq-num">(15)</span>
+  </div>
+
+  <p class="reveal">
+    Unlike the pointwise form, $\bar E$ stays well-conditioned when boundary nodes overlap, and the constraint is satisfied <em>between</em> nodes rather than only at them. Differentiating through&nbsp;(15) inside&nbsp;(12)&ndash;(13) gives the multibody-friendly coupling we use throughout the paper.
+  </p>
+
+  <!-- Contributions -->
+  <h3 class="reveal"><span class="num">5.</span>Contributions</h3>
+  <ul class="contributions reveal">
+    <li><b>Unified derivation.</b> Strongly coupled fluid-robot multiphysics from a single Lagrangian via the principle of least action.</li>
+    <li><b>Weak-form no-slip.</b> An integral formulation of the immersed-boundary constraint compatible with articulated multibody systems.</li>
+    <li><b>Differentiable simulator.</b> Gradients through the fully coupled dynamics via the implicit function theorem.</li>
+    <li><b>Hardware validation.</b> Sim-to-real transfer of undulatory swimming and a gradient-optimized C-start on a bioinspired eel robot.</li>
+  </ul>
+</section>
+
+<!-- ============================================================ RESULTS ============================================================ -->
+<section class="wrap" id="results">
+  <h2 class="section-title reveal">Results</h2>
+
+  <h3 class="reveal">Steady undulatory swimming</h3>
+  <p class="reveal">
+    We drive each joint with a phase-shifted sinusoid to produce a traveling wave at 1&nbsp;Hz with body wavelength $\lambda = L_B$. Across joint amplitudes from 10&deg; to 40&deg; (20 trials each), our method consistently tracks hardware while the SPH baseline drifts &mdash; the gap widens with amplitude.
+  </p>
+
+  <div class="timeline-strip reveal">
+    <div class="row header">
+      <span></span>
+      <span>t = 0 s</span><span>t = 0.5 s</span><span>t = 1 s</span><span>t = 1.5 s</span>
+      <span>t = 2 s</span><span>t = 2.5 s</span><span>t = 3 s</span>
+    </div>
+    <div class="row hw">
+      <div class="row-label">Hardware</div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <div class="row ours">
+      <div class="row-label">Ours</div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <div class="row baseline">
+      <div class="row-label">Baseline</div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+    </div>
+    <figcaption style="margin-top:14px;">
+      Time-lapse of forward swimming at 40&deg; amplitude. Drop frames into the grid above by replacing each empty cell with an <code style="background:var(--bg-soft); padding:1px 5px; border-radius:3px; font-size:0.85em;">&lt;img&gt;</code>.
+    </figcaption>
+  </div>
+
+  <div class="results-figure reveal">
+    <div class="frame">
+      <img src="static/images/rmse_bars.png" alt="RMSE comparison across amplitudes"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
+        [ static/images/rmse_bars.png &mdash; RMSE bar charts (Fig. 7) ]
+      </div>
+    </div>
+    <figcaption>
+      Mean trajectory RMSE of the head-link configuration ($x_1$, $y_1$, $\theta_1$) versus undulation amplitude.
+      <span class="tag-ours">Ours</span> outperforms the
+      <span class="tag-baseline">SPH baseline</span> across all amplitudes, with up to <b>75%</b> error reduction at 40&deg;.
+    </figcaption>
+  </div>
+
+  <div class="video-grid reveal">
+    <figure class="video-card hw">
+      <div class="label">Hardware</div>
+      <video autoplay muted loop playsinline poster="static/images/undulation_hw.png">
+        <source src="static/videos/undulation_hw.mp4" type="video/mp4" />
+      </video>
+    </figure>
+    <figure class="video-card ours">
+      <div class="label">Ours</div>
+      <video autoplay muted loop playsinline poster="static/images/undulation_ours.png">
+        <source src="static/videos/undulation_ours.mp4" type="video/mp4" />
+      </video>
+    </figure>
+    <figure class="video-card baseline">
+      <div class="label">SPH baseline</div>
+      <video autoplay muted loop playsinline poster="static/images/undulation_baseline.png">
+        <source src="static/videos/undulation_baseline.mp4" type="video/mp4" />
+      </video>
+    </figure>
+  </div>
+
+  <h3 class="reveal" style="margin-top:48px;">Optimizing a highly dynamic C-start</h3>
+  <p class="reveal">
+    We use the simulator's gradients to optimize a fish-inspired C-start escape maneuver. The maneuver consists of a <em>bend phase</em> (0&ndash;1 s) where the robot curls into a C-shape, followed by a <em>propulsion phase</em> (1&ndash;3 s) where it transitions into undulation. The optimization variables are the per-joint bend angles $\bar\theta_{1:5}$, the head joint phase $\phi_1$, and body wavelength $\lambda$; the undulation amplitude is fixed at 25&deg; to avoid hitting the wall. With L-BFGS, starting from $\bar\theta_{1:5}=[36^\circ\!,\,36^\circ\!,\,36^\circ\!,\,36^\circ\!,\,36^\circ]$, $\phi_1=-\pi/4$, $\lambda=0.7L_B$, we maximize center-of-mass velocity in the target direction and converge to $\bar\theta_{1:5}\!\approx\![17.2^\circ\!,\,17.8^\circ\!,\,19.4^\circ\!,\,23.1^\circ\!,\,36^\circ]$, $\phi_1\!\approx\!-1.16$, $\lambda\!\approx\!0.57L_B$ &mdash; achieving a <b>90&deg; turn from rest</b> that transfers open-loop to hardware. The SPH baseline fails to realize either the turn or the propulsion.
+  </p>
+
+  <div class="video-grid reveal">
+    <figure class="video-card hw">
+      <div class="label">Hardware &mdash; optimized C-start</div>
+      <video autoplay muted loop playsinline poster="static/images/cstart_hw.png">
+        <source src="static/videos/cstart_hw.mp4" type="video/mp4" />
+      </video>
+    </figure>
+    <figure class="video-card ours">
+      <div class="label">Ours &mdash; optimized C-start</div>
+      <video autoplay muted loop playsinline poster="static/images/cstart_ours.png">
+        <source src="static/videos/cstart_ours.mp4" type="video/mp4" />
+      </video>
+    </figure>
+  </div>
+
+  <div class="results-figure reveal">
+    <div class="frame">
+      <img src="static/images/cstart_trajectories.png" alt="C-start head-link trajectories"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
+        [ static/images/cstart_trajectories.png &mdash; head-link trajectories (Fig. 9) ]
+      </div>
+    </div>
+    <figcaption>
+      Head-link trajectories before (dotted) and after (solid) gradient-based optimization. Our method realizes a heading close to hardware in both cases; the SPH baseline diverges significantly.
+    </figcaption>
+  </div>
+</section>
+
+<!-- ============================================================ HARDWARE ============================================================ -->
+<section class="wrap" id="hardware">
+  <h2 class="section-title reveal">Hardware</h2>
+  <p class="reveal">
+    The eel robot has <b>6 rigid links</b> (9.8&nbsp;cm each) connected by revolute joints driven by Dynamixel XC330-M288-T servos. It is fully untethered, with an onboard 900&nbsp;mAh battery and a Robotis OpenRB-150 microcontroller in the head link. Buoyant 3D-printed shells house the electronics; thin rigid fins underneath maintain a thin-plate hydrodynamic profile. Head-link pose is tracked by an overhead camera via AprilTags in a 122&nbsp;&times;&nbsp;122&nbsp;cm pool, recreating the simulated walled cavity.
+  </p>
+  <div class="results-figure reveal">
+    <div class="frame">
+      <img src="static/images/hardware_setup.png" alt="Hardware setup"
+           onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" />
+      <div style="display:none; padding:40px; text-align:center; color:var(--ink-3); font-family:'Newsreader',serif; font-style:italic;">
+        [ static/images/hardware_setup.png &mdash; Fig. 6 of paper ]
+      </div>
+    </div>
+    <figcaption>
+      Sim-to-real validation setup. The walled cavity is recreated in a pool of equal dimensions; the eel robot is fully untethered.
+    </figcaption>
+  </div>
+</section>
+
+<!-- ============================================================ BIBTEX ============================================================ -->
+<section class="wrap" id="bibtex">
+  <h2 class="section-title reveal">Citation</h2>
+  <div class="bibtex-block reveal">
+    <button class="copy-btn" onclick="copyBibtex(this)">Copy</button>
+<pre id="bibtex-content">@inproceedings{lee2026realizing,
+  title     = {Realizing Robotic Swimming with Unified Fluid-Robot Multiphysics},
+  author    = {Lee, Jeong Hun and Hu, Junzhe and Kwok, Sofia
+               and Majidi, Carmel and Manchester, Zachary},
+  booktitle = {Robotics: Science and Systems (RSS)},
+  year      = {2026},
+  note      = {Equal contribution: J. H. Lee and J. Hu}
+}</pre>
+  </div>
+</section>
+
+<!-- ============================================================ ACK ============================================================ -->
+<section class="wrap" id="ack">
+  <h2 class="section-title reveal">Acknowledgments</h2>
+  <p class="reveal">
+    The authors thank the members of the Robotic Exploration Lab and the Soft Machines Lab at Carnegie Mellon University for valuable discussions and feedback.
+    <span style="color:var(--ink-3);">[Add funding sources and individual acknowledgments here.]</span>
+  </p>
+  <p class="reveal" style="font-size:0.9rem; color:var(--ink-3);">
+    This page borrows its structure from the
+    <a href="https://nerfies.github.io/">Nerfies project page</a>; source available on
+    <a href="#">GitHub</a>.
+  </p>
+</section>
+
+<footer>
+  <div class="wrap">
+    &copy; 2026 The authors &middot; Built with care for RSS 2026.
+  </div>
+</footer>
+
+<script>
+function copyBibtex(btn) {
+  const text = document.getElementById('bibtex-content').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 1600);
+  });
+}
+
+const io = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+}, { threshold: 0.06, rootMargin: '0px 0px -40px 0px' });
+document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+</script>
+</body>
+</html>

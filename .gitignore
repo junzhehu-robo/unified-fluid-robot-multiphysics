@@ -1,0 +1,22 @@
+# macOS
+.DS_Store
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.bak
+*.tmp
+
+# Python
+__pycache__/
+*.pyc
+
+# Local previews / build artifacts
+.cache/
+node_modules/
+
+# Raw media kept locally but not in git (optional —
+# delete these two lines if you DO want raw videos in the repo)
+raw_videos/
+paper_figures/
