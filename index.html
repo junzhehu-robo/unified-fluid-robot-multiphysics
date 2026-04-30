@@ -208,6 +208,20 @@ figcaption b { font-style: normal; font-weight: 600; color: var(--ink); }
 /* Abstract -- drop cap REMOVED per request */
 .abstract p { font-size: 1.05rem; color: var(--ink); }
 
+/* Video Overview */
+#video { padding: 48px 0 52px; }
+#video .section-title { margin-bottom: 22px; }
+.video-overview { margin: 0; }
+.video-overview .frame {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+.video-overview video { width: 100%; display: block; }
+.video-overview figcaption { margin-top: 16px; max-width: 720px; }
+
 /* Method */
 .method-figure { margin: 12px 0 28px; }
 .method-figure .frame {
@@ -578,11 +592,17 @@ footer a { color: var(--ink-2); }
 <!-- ============================================================ VIDEO ============================================================ -->
 <section class="wrap" id="video">
   <h2 class="section-title reveal">Video Overview</h2>
-  <div class="reveal" style="background:var(--surface); border:1px solid var(--rule); border-radius:var(--radius); overflow:hidden; box-shadow:var(--shadow-md);">
-    <video controls poster="static/images/video_poster.png" preload="metadata">
-      <source src="static/videos/overview.mp4" type="video/mp4" />
-    </video>
-  </div>
+  <figure class="video-overview reveal">
+    <div class="frame">
+      <video controls preload="metadata" playsinline>
+        <source src="static/videos/supplemental_video.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+    </div>
+    <figcaption>
+      Full supplemental video &mdash; an end-to-end walkthrough of the unified Lagrangian formulation, the discrete variational integrator, simulation results, and hardware experiments on the eel robot.
+    </figcaption>
+  </figure>
 </section>
 
 <!-- ============================================================ METHOD ============================================================ -->
