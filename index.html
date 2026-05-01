@@ -102,7 +102,7 @@ p { margin: 0 0 18px; color: var(--ink); }
 p.lead { color: var(--ink-2); font-size: 1.04rem; }
 
 /* Hero */
-.hero { padding: 88px 0 32px; text-align: center; position: relative; overflow: hidden; }
+.hero { padding: 120px 0 56px; text-align: center; position: relative; overflow: hidden; }
 .hero > *:not(.hero-gif) { position: relative; z-index: 2; }
 .hero .venue {
   display: inline-block;
@@ -114,17 +114,17 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
   border: 1px solid rgba(107, 182, 224, 0.4);
   padding: 4px 14px;
   border-radius: 999px;
-  margin-bottom: 28px;
+  margin-bottom: 36px;
   background: rgba(107, 182, 224, 0.08);
 }
 .hero h1 {
   font-family: "Newsreader", Georgia, serif;
   font-weight: 500;
-  font-size: clamp(2rem, 1.4rem + 2.4vw, 3.1rem);
-  line-height: 1.15;
-  letter-spacing: -0.02em;
-  margin: 0 auto 28px;
-  max-width: 24ch;
+  font-size: clamp(2.4rem, 1.6rem + 3vw, 3.9rem);
+  line-height: 1.12;
+  letter-spacing: -0.022em;
+  margin: 0 auto 40px;
+  max-width: 22ch;
   color: var(--ink);
 }
 .hero h1 em { font-style: italic; color: var(--accent); font-weight: 500; }
@@ -137,10 +137,10 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
   pointer-events: none;
   transform: translate(-50%, -50%) rotate(-90deg);
   transform-origin: center center;
-  opacity: 0.55;
-  filter: saturate(0.95) contrast(1.02);
-  -webkit-mask-image: radial-gradient(ellipse 62% 68% at center, #000 38%, transparent 82%);
-          mask-image: radial-gradient(ellipse 62% 68% at center, #000 38%, transparent 82%);
+  opacity: 0.72;
+  filter: saturate(1.05) contrast(1.04) brightness(1.28);
+  -webkit-mask-image: radial-gradient(ellipse 62% 68% at center, #000 40%, transparent 84%);
+          mask-image: radial-gradient(ellipse 62% 68% at center, #000 40%, transparent 84%);
 }
 .hero-gif img {
   display: block;
@@ -158,10 +158,10 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
 .authors .sup { font-size: 0.7em; vertical-align: super; color: var(--accent-2); margin-left: 1px; font-weight: 600; }
 .authors .sep { color: var(--ink-3); padding: 0 4px; }
 
-.affil { font-family: "Newsreader", Georgia, serif; font-style: italic; font-size: 1rem; color: var(--ink-2); margin: 6px 0 4px; }
-.equal-note { font-size: 0.85rem; color: var(--ink-3); margin: 4px 0 32px; }
+.affil { font-family: "Newsreader", Georgia, serif; font-style: italic; font-size: 1.04rem; color: var(--ink-2); margin: 8px 0 4px; }
+.equal-note { font-size: 0.85rem; color: var(--ink-3); margin: 4px 0 36px; }
 
-.buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 8px; }
+.buttons { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 12px; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
   padding: 9px 18px;
@@ -176,6 +176,17 @@ p.lead { color: var(--ink-2); font-size: 1.04rem; }
 .btn .icon { width: 16px; height: 16px; opacity: .9; }
 .btn.ghost { background: transparent; color: var(--ink); }
 .btn.ghost:hover { background: var(--ink); color: var(--bg); }
+
+.arxiv-mark {
+  font-family: "Newsreader", Georgia, serif;
+  font-weight: 700;
+  font-style: italic;
+  letter-spacing: 0.005em;
+  color: #b31b1b;
+  font-size: 1.02em;
+}
+.btn:hover .arxiv-mark { color: #ff7c7c; }
+.btn .sep-dot { color: var(--ink-3); margin: 0 2px; font-weight: 400; }
 
 /* Teaser */
 .teaser { padding: 24px 0 8px; }
@@ -561,8 +572,7 @@ footer a { color: var(--ink-2); }
   <p class="equal-note reveal"><sup>&dagger;</sup> Equal contribution</p>
 
   <div class="buttons reveal">
-    <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/></svg>Paper</a>
-    <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M7 3v18M17 3v18M3 17h18"/></svg>arXiv</a>
+    <a class="btn" href="#"><span class="arxiv-mark">arXiv</span><span class="sep-dot">&middot;</span>Paper</a>
     <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5a11.5 11.5 0 0 0-3.6 22.4c.6.1.8-.3.8-.6v-2c-3.2.7-3.9-1.4-3.9-1.4-.5-1.3-1.3-1.7-1.3-1.7-1.1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.7 1.3 3.4 1 .1-.7.4-1.3.7-1.5-2.5-.3-5.2-1.3-5.2-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.4.1-3 0 0 1-.3 3.3 1.2a11.4 11.4 0 0 1 6 0c2.3-1.5 3.3-1.2 3.3-1.2.7 1.6.2 2.7.1 3 .8.8 1.2 1.8 1.2 3.1 0 4.4-2.7 5.4-5.2 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A11.5 11.5 0 0 0 12 .5z"/></svg>Code</a>
     <a class="btn" href="#"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>Video</a>
     <a class="btn ghost" href="#bibtex"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5V5a2 2 0 0 1 2-2h12v14H6a2 2 0 0 0-2 2z"/><path d="M8 7h8M8 11h6"/></svg>BibTeX</a>
